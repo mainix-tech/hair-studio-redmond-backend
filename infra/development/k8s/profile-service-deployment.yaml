@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-service
+  template:
+    metadata:
+      labels:
+        app: profile-service
+    spec:
+      containers:
+        - name: profile-service
+          image: hair-studio-redmond/profile-service
+          ports:
+            - containerPort: 9093
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "125m"
+            limits:
+              memory: "128Mi"
+              cpu: "125m"
+          env:
+            # Accessing an env variable from the app-config config map
+            - name: PROFILE_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: PROFILE_SERVICE_URL
+                  name: app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9093
+      targetPort: 9093
+  selector:
+    app: profile-service

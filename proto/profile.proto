@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package profile;
+
+option go_package = "shared/proto/profile;profile";
+
+service ProfileService {
+  rpc GetProfileInfo(GetProfileInfoRequest) returns (GetProfileInfoResponse);
+  rpc UpdateProfileInfo(UpdateProfileInfoRequest) returns (UpdateProfileInfoResponse);
+}
+
+message GetProfileInfoResponse {
+    ProfileInfo profileInfo = 1;
+}
+message GetProfileInfoRequest {
+
+}
+
+message UpdateProfileInfoResponse {}
+message UpdateProfileInfoRequest {
+    ProfileInfo profileInfo = 1;
+}
+
+message ProfileInfo {
+  string id = 1;
+  string profileEmail = 2;
+  string profilePhone = 3;
+  string profileAddress = 4;
+  string profileTitle = 5;
+  string profileSubtitle = 6;
+}
