@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+data:
+  init-multiple-databases.sh: |
+    #!/bin/bash
+    set -e
+    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
+        echo "Creating multiple databases: $POSTGRES_MULTIPLE_DATABASES"
+        for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
+            # Added a check so it doesn't try to recreate existing databases on pod restarts
+            if psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -lqt | cut -d \| -f 1 | grep -qw "$db"; then
+                echo "Database $db already exists, skipping creation."
+            else
+                psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -c "CREATE DATABASE $db;"
+            fi
+        done
+    fi
+---
+# 1. ADD A PERSISTENT VOLUME CLAIM (PVC)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres-db
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+    spec:
+      containers:
+        - name: postgres-db
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "150m"
+            limits:
+              memory: "256Mi"
+              cpu: "150m"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USER
+                  name: app-config
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PASSWORD
+                  name: app-config
+            - name: POSTGRES_MULTIPLE_DATABASES
+              value: "profile_db,address_db,catalog_db,about_db"
+            # 2. CRITICAL CONFIG: Tell Postgres where to store its persistent data
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: init-script-volume
+              mountPath: /docker-entrypoint-initdb.d
+            # 3. MOUNT THE PERSISTENT VOLUME TO THE POSTGRES DATA DIRECTORY
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: init-script-volume
+          configMap:
+            name: postgres-init-script
+        # 4. BIND THE DEPLOYMENT VOLUMES SPEC TO THE REUSABLE STORAGE CLAIM
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-db

@@ -82,3 +82,17 @@ k8s_resource(
 )
 
 ### End of Profile Service ###
+### Postgres Database ###
+
+# Apply the postgres kubernetes resources (Deployment, Service, and Initializer script)
+k8s_yaml('./infra/development/k8s/postgres-db-deployment.yaml')
+
+# Register it in Tilt so you can track database logs and availability status
+k8s_resource(
+  'postgres-db',
+  # Port forward so you can optionally connect via Datagrip/DBeaver on your local machine
+  port_forwards='5433:5432',
+  labels="storage",
+)
+
+### End of Postgres Database ###

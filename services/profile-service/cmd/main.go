@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"hair-studio-redmond/services/profile-service/internal/infrastructure/db"
 	"hair-studio-redmond/services/profile-service/internal/infrastructure/repository"
 	"hair-studio-redmond/services/profile-service/internal/service"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 
+	"embed"
 	"hair-studio-redmond/services/profile-service/internal/infrastructure/grpc"
 	"syscall"
 
@@ -17,12 +19,23 @@ import (
 
 var GrpcAddr = ":9093"
 
+//go:embed migrations
+var migrationFiles embed.FS
+
 func main() {
-	inmemRepo := repository.NewInmemRepository()
-	svc := service.NewService(inmemRepo)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	// 1. Establish the database connection pool
+	dbConn, err := db.ConnectPostgres(ctx, migrationFiles)
+	if err != nil {
+		log.Fatalf("Critical database error: %v", err)
+	}
+
+	defer dbConn.Close(ctx) // Ensure resources clear out gracefully on shutdown
+	repo := repository.NewPostgresRepository(dbConn)
+	svc := service.NewService(repo)
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)

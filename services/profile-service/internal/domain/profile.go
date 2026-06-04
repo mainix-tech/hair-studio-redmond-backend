@@ -26,9 +26,9 @@ func (t *ProfileModel) ToProto() *pb.ProfileInfo {
 }
 
 type ProfileRepository interface {
-	UpdateProfile(ctx context.Context) error
+	UpdateProfile(ctx context.Context, dto *ProfileModel) error
 }
 
 type ProfileService interface {
-	UpdateProfile(ctx context.Context) error
+	UpdateProfile(ctx context.Context, dto *ProfileModel) error
 }
