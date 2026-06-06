@@ -82,6 +82,45 @@ k8s_resource(
 )
 
 ### End of Profile Service ###
+
+### Menu Service ###
+
+menu_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/menu-service ./services/menu-service/cmd/main.go'
+if os.name == 'nt':
+  menu_compile_cmd = './infra/development/docker/menu-service-build.bat'
+
+local_resource(
+  'menu-service-compile',
+  menu_compile_cmd,
+  deps=['./services/menu-service', './shared'],
+  labels="compiles",
+)
+
+docker_build_with_restart(
+  'hair-studio-redmond/menu-service',
+  '.',
+  entrypoint=['/app/build/menu-service'],
+  dockerfile='./infra/development/docker/menu-service.Dockerfile',
+  only=[
+    './build/menu-service',
+    './shared',
+  ],
+  live_update=[
+    sync('./build', '/app/build'),
+    sync('./shared', '/app/shared'),
+  ],
+)
+
+k8s_yaml('./infra/development/k8s/menu-service-deployment.yaml')
+k8s_resource(
+  'menu-service',
+  resource_deps=['menu-service-compile'],
+  labels="services",
+)
+
+### End of Menu Service ###
+
+
 ### Postgres Database ###
 
 # Apply the postgres kubernetes resources (Deployment, Service, and Initializer script)

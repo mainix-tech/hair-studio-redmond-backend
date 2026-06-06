@@ -22,7 +22,7 @@ func mockHandler(w http.ResponseWriter, r *http.Request) {
 
 type ApiGatewayHandlers struct {
 	profileClient *grpc_clients.ProfileServiceClient
-	//menuClient    *grpc_clients.MenuServiceClient
+	menuClient    *grpc_clients.MenuServiceClient
 	//catalogClient *grpc_clients.CatalogServiceClient
 }
 
@@ -30,11 +30,13 @@ func main() {
 	log.Printf("Starting API Gateway on %v", httpAddr)
 
 	profileConn, _ := grpc_clients.NewProfileServiceClient()
+	menuConn, _ := grpc_clients.NewMenuServiceClient()
+
 	defer profileConn.Close()
 
 	handlers := &ApiGatewayHandlers{
 		profileClient: profileConn,
-		//menuClient:    menuConn,
+		menuClient:    menuConn,
 		//catalogClient: catalogConn,
 	}
 
@@ -47,10 +49,10 @@ func main() {
 	mux.HandleFunc("POST /api/v1/profile", mockHandler)
 
 	// Services domain routes
-	mux.HandleFunc("GET /api/v1/menu", mockHandler)
-	mux.HandleFunc("POST /api/v1/menu", mockHandler)
-	mux.HandleFunc("PUT /api/v1/menu", mockHandler)
-	mux.HandleFunc("DELETE /api/v1/menu", mockHandler)
+	mux.HandleFunc("GET /api/v1/menu", handlers.handleGetMenuItems)
+	mux.HandleFunc("POST /api/v1/menu", handlers.handleCreateMenuItem)
+	mux.HandleFunc("PUT /api/v1/menu", handlers.handleUpdateMenuItem)
+	mux.HandleFunc("DELETE /api/v1/menu", handlers.handleDeleteMenuItem)
 
 	// Catalog domain routes
 	mux.HandleFunc("GET /api/v1/catalog", mockHandler)

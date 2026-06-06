@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu-service
+  template:
+    metadata:
+      labels:
+        app: menu-service
+    spec:
+      containers:
+        - name: menu-service
+          image: hair-studio-redmond/menu-service
+          ports:
+            - containerPort: 9094
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "125m"
+            limits:
+              memory: "128Mi"
+              cpu: "125m"
+          env:
+            # Accessing an env variable from the app-config config map
+            - name: MENU_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: MENU_SERVICE_URL
+                  name: app-config
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_HOST
+                  name: app-config
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PORT
+                  name: app-config
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USER
+                  name: app-config
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PASSWORD
+                  name: app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9094
+      targetPort: 9094
+  selector:
+    app: menu-service

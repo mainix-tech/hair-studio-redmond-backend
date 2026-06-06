@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"hair-studio-redmond/services/profile-service/internal/infrastructure/db"
 	"hair-studio-redmond/services/profile-service/internal/infrastructure/repository"
 	"hair-studio-redmond/services/profile-service/internal/service"
+	"hair-studio-redmond/shared/db"
 	"log"
 	"net"
 	"os"
@@ -28,7 +28,7 @@ func main() {
 	defer stop()
 
 	// 1. Establish the database connection pool
-	dbConn, err := db.ConnectPostgres(ctx, migrationFiles)
+	dbConn, err := db.ConnectPostgres(ctx, "profile_db", migrationFiles)
 	if err != nil {
 		log.Fatalf("Critical database error: %v", err)
 	}

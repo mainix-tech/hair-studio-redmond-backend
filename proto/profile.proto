@@ -12,9 +12,7 @@ service ProfileService {
 message GetProfileInfoResponse {
     ProfileInfo profileInfo = 1;
 }
-message GetProfileInfoRequest {
-
-}
+message GetProfileInfoRequest {}
 
 message UpdateProfileInfoResponse {}
 message UpdateProfileInfoRequest {

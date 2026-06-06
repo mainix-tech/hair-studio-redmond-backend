@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package menu;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "shared/proto/menu;menu";
+
+service MenuService {
+  rpc GetMenuItems(google.protobuf.Empty) returns (GetMenuItemsResponse);
+  rpc UpdateMenuItem(UpdateMenuItemRequest) returns (google.protobuf.Empty);
+  rpc CreateMenuItem(CreateMenuItemRequest) returns (google.protobuf.Empty);
+  rpc DeleteMenuItem(DeleteMenuItemRequest) returns (google.protobuf.Empty);
+}
+
+message GetMenuItemsResponse {
+  repeated MenuItem items = 1;
+}
+
+message UpdateMenuItemRequest {
+  MenuItem item = 1;
+}
+
+message CreateMenuItemRequest {
+  MenuItem item = 1;
+}
+
+message DeleteMenuItemRequest {
+  string id = 1;
+}
+
+message MenuItem {
+  string id = 1;
+  string name = 2;
+  string previewDescription = 3;
+  string detailedDescription = 4;
+  int64 time = 5;
+  int64 price = 6;
+  string category = 7;
+}
