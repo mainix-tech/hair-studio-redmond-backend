@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"hair-studio-redmond/services/api-gateway/grpc_clients"
 	"hair-studio-redmond/shared/env"
 	"log"
 	"net/http"
@@ -19,14 +20,29 @@ func mockHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("mockHandler called")
 }
 
+type ApiGatewayHandlers struct {
+	profileClient *grpc_clients.ProfileServiceClient
+	//menuClient    *grpc_clients.MenuServiceClient
+	//catalogClient *grpc_clients.CatalogServiceClient
+}
+
 func main() {
 	log.Printf("Starting API Gateway on %v", httpAddr)
+
+	profileConn, _ := grpc_clients.NewProfileServiceClient()
+	defer profileConn.Close()
+
+	handlers := &ApiGatewayHandlers{
+		profileClient: profileConn,
+		//menuClient:    menuConn,
+		//catalogClient: catalogConn,
+	}
 
 	mux := http.NewServeMux()
 
 	// Info About the studio domain routes
 	mux.HandleFunc("GET /api/v1/profile", mockHandler)
-	mux.HandleFunc("PUT /api/v1/profile", handleUpdateProfileInfo)
+	mux.HandleFunc("PUT /api/v1/profile", handlers.handleUpdateProfileInfo)
 	mux.HandleFunc("DELETE /api/v1/profile", mockHandler)
 	mux.HandleFunc("POST /api/v1/profile", mockHandler)
 

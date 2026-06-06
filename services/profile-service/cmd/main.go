@@ -24,8 +24,8 @@ var migrationFiles embed.FS
 
 func main() {
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx, stop := context.WithCancel(context.Background())
+	defer stop()
 
 	// 1. Establish the database connection pool
 	dbConn, err := db.ConnectPostgres(ctx, migrationFiles)
@@ -41,7 +41,7 @@ func main() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 		<-sigCh
-		cancel()
+		stop()
 	}()
 
 	lis, err := net.Listen("tcp", GrpcAddr)
@@ -58,7 +58,7 @@ func main() {
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Printf("failed to serve: %v", err)
-			cancel()
+			stop()
 		}
 	}()
 

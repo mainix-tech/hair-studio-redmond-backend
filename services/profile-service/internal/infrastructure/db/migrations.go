@@ -10,7 +10,6 @@ import (
 )
 
 func RunDatabaseMigrations(databaseURL string, fs embed.FS) {
-	// Must match the exact structural folder path used in the //go:embed statement!
 	d, err := iofs.New(fs, "migrations")
 	if err != nil {
 		log.Fatalf("failed to create migration io/fs driver: %v", err)

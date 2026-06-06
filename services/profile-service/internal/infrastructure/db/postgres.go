@@ -38,6 +38,14 @@ func ConnectPostgres(ctx context.Context, fs embed.FS) (*pgx.Conn, error) {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
 
+	/*
+		Even if pgx.Connect successfully returns a connection object, it doesn't guarantee that the database is actually ready to talk to you
+		(e.g., the authentication might fail on the first query, or the database might be in a "starting up" state).
+
+		Without this block, your microservice might boot up completely "green" and start accepting traffic from your API Gateway,
+		only to crash on the very first user HTTP request because the database wasn't actually ready.
+		This block ensures your service fails fast during bootup if its database isn't fully healthy.
+	*/
 	if err := conn.Ping(connectCtx); err != nil {
 		conn.Close(context.Background())
 		return nil, fmt.Errorf("database ping failed: %w", err)
@@ -46,3 +54,8 @@ func ConnectPostgres(ctx context.Context, fs embed.FS) (*pgx.Conn, error) {
 	log.Printf("Successfully connected to database: %s at %s:%s", dbName, host, port)
 	return conn, nil
 }
+
+/*
+
+
+ */
