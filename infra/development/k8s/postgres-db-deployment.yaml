@@ -70,7 +70,7 @@ spec:
                   key: DB_PASSWORD
                   name: app-config
             - name: POSTGRES_MULTIPLE_DATABASES
-              value: "profile_db,address_db,catalog_db,about_db,menu_db"
+              value: "profile_db,catalog_db,menu_db"
             # 2. CRITICAL CONFIG: Tell Postgres where to store its persistent data
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata

@@ -11,14 +11,14 @@ k8s_yaml('./infra/development/k8s/app-config.yaml')
 ### End of K8s Config ###
 ### API Gateway ###
 
-gateway_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/api-gateway ./services/api-gateway'
+gateway_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/api-gateway ./service/api-gateway'
 if os.name == 'nt':
   gateway_compile_cmd = './infra/development/docker/api-gateway-build.bat'
 
 local_resource(
   'api-gateway-compile',
   gateway_compile_cmd,
-  deps=['./services/api-gateway', './shared'],
+  deps=['./service/api-gateway', './shared'],
   labels="compiles",
 )
 
@@ -42,20 +42,20 @@ k8s_resource(
   'api-gateway',
   port_forwards=8081,
   resource_deps=['api-gateway-compile'],
-  labels="services",
+  labels="service",
 )
 
 ### End of API Gateway ###
 ### Profile Service ###
 
-profile_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/profile-service ./services/profile-service/cmd/main.go'
+profile_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/profile-service ./service/profile-service/cmd/main.go'
 if os.name == 'nt':
   profile_compile_cmd = './infra/development/docker/profile-service-build.bat'
 
 local_resource(
   'profile-service-compile',
   profile_compile_cmd,
-  deps=['./services/profile-service', './shared'],
+  deps=['./service/profile-service', './shared'],
   labels="compiles",
 )
 
@@ -78,21 +78,21 @@ k8s_yaml('./infra/development/k8s/profile-service-deployment.yaml')
 k8s_resource(
   'profile-service',
   resource_deps=['profile-service-compile'],
-  labels="services",
+  labels="service",
 )
 
 ### End of Profile Service ###
 
 ### Menu Service ###
 
-menu_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/menu-service ./services/menu-service/cmd/main.go'
+menu_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/menu-service ./service/menu-service/cmd/main.go'
 if os.name == 'nt':
   menu_compile_cmd = './infra/development/docker/menu-service-build.bat'
 
 local_resource(
   'menu-service-compile',
   menu_compile_cmd,
-  deps=['./services/menu-service', './shared'],
+  deps=['./service/menu-service', './shared'],
   labels="compiles",
 )
 
@@ -115,10 +115,46 @@ k8s_yaml('./infra/development/k8s/menu-service-deployment.yaml')
 k8s_resource(
   'menu-service',
   resource_deps=['menu-service-compile'],
-  labels="services",
+  labels="service",
 )
 
 ### End of Menu Service ###
+
+### Catalog Service ###
+catalog_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/catalog-service ./service/catalog-service/cmd/main.go'
+if os.name == 'nt':
+  catalog_compile_cmd = './infra/development/docker/catalog-service-build.bat'
+
+local_resource(
+  'catalog-service-compile',
+  catalog_compile_cmd,
+  deps=['./service/catalog-service', './shared'],
+  labels="compiles",
+)
+
+docker_build_with_restart(
+  'hair-studio-redmond/catalog-service',
+  '.',
+  entrypoint=['/app/build/catalog-service'],
+  dockerfile='./infra/development/docker/catalog-service.Dockerfile',
+  only=[
+    './build/catalog-service',
+    './shared',
+  ],
+  live_update=[
+    sync('./build', '/app/build'),
+    sync('./shared', '/app/shared'),
+  ],
+)
+
+k8s_yaml('./infra/development/k8s/catalog-service-deployment.yaml')
+k8s_resource(
+  'catalog-service',
+  resource_deps=['catalog-service-compile'],
+  labels="service",
+)
+
+### End of Catalog Service ###
 
 
 ### Postgres Database ###
