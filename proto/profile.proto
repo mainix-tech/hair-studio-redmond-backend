@@ -9,21 +9,70 @@ service ProfileService {
   rpc UpdateProfileInfo(UpdateProfileInfoRequest) returns (UpdateProfileInfoResponse);
 }
 
+// Nested support messages
+message TimeRange {
+  int32 open = 1;
+  int32 close = 2;
+}
+
+message WorkHours {
+  TimeRange monday = 1;
+  TimeRange tuesday = 2;
+  TimeRange wednesday = 3;
+  TimeRange thursday = 4;
+  TimeRange friday = 5;
+  TimeRange saturday = 6;
+  TimeRange sunday = 7;
+}
+
+message HomePage {
+  string profile = 1;
+  string profileSubtitle = 2;
+  string aboutStudioTitle = 3;
+  string aboutStudioSubtitle = 4;
+}
+
+message ContactPage {
+  string profileEmail = 1;
+  string profilePhone = 2;
+  string profileAddress = 3;
+  string title = 4;
+  string subtitle = 5;
+  WorkHours workHours = 6;
+}
+
+message Story {
+  string title = 1;
+  string subtitle = 2;
+}
+
+message Founder {
+  string title = 1;
+  string subtitle = 2;
+  string replica = 3;
+}
+
+message AboutPage {
+  string title = 1;
+  string subtitle = 2;
+  Story ourStory = 3;
+  Founder aboutFounder = 4;
+}
+
+
+message ProfileInfo {
+  string id = 1;
+  HomePage homePage = 2;
+  ContactPage contactPage = 3;
+  AboutPage aboutPage = 4;
+}
+
 message GetProfileInfoResponse {
-    ProfileInfo profileInfo = 1;
+  ProfileInfo profileInfo = 1;
 }
 message GetProfileInfoRequest {}
 
 message UpdateProfileInfoResponse {}
 message UpdateProfileInfoRequest {
-    ProfileInfo profileInfo = 1;
-}
-
-message ProfileInfo {
-  string id = 1;
-  string profileEmail = 2;
-  string profilePhone = 3;
-  string profileAddress = 4;
-  string profileTitle = 5;
-  string profileSubtitle = 6;
+  ProfileInfo profileInfo = 1;
 }

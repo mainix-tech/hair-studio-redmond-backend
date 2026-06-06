@@ -44,10 +44,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Info About the studio domain routes
-	mux.HandleFunc("GET /api/v1/profile", mockHandler)
+	mux.HandleFunc("GET /api/v1/profile", handlers.handleGetProfileInfo)
 	mux.HandleFunc("PUT /api/v1/profile", handlers.handleUpdateProfileInfo)
-	mux.HandleFunc("DELETE /api/v1/profile", mockHandler)
-	mux.HandleFunc("POST /api/v1/profile", mockHandler)
 
 	// Services domain routes
 	mux.HandleFunc("GET /api/v1/menu", handlers.handleGetMenuItems)

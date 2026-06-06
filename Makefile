@@ -16,4 +16,4 @@ generate-proto:
 migration:
 	@read -p "Enter service name: " service; \
 	read -p "Enter migration name: " name; \
-	migrate create -ext sql -dir services/$$service/cmd/migrations -seq $$name
+	migrate create -ext sql -dir service/$$service/cmd/migrations -seq $$name

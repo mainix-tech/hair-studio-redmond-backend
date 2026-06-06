@@ -1,29 +1,125 @@
 package main
 
-import profilePb "hair-studio-redmond/shared/proto/profile"
-import menuPb "hair-studio-redmond/shared/proto/menu"
-import catalogPb "hair-studio-redmond/shared/proto/catalog"
+import (
+	menuPb "hair-studio-redmond/shared/proto/menu"
+	profilePb "hair-studio-redmond/shared/proto/profile"
+
+	catalogPb "hair-studio-redmond/shared/proto/catalog"
+)
 
 // ///////////////////////////////////////////////////// START PROFILE ///////////////////////////////////////////
-type updateProfileInfoRequest struct {
-	ID              string `json:"id"`
-	ProfileEmail    string `json:"profileEmail"`
-	ProfilePhone    string `json:"profilePhone"`
-	ProfileAddress  string `json:"profileAddress"`
-	ProfileTitle    string `json:"profile"`
-	ProfileSubtitle string `json:"profileSubtitle"`
+type UpdateProfileRequest struct {
+	ID          string          `json:"id"`
+	HomePage    HomePageContent `json:"homePage"`
+	ContactPage ContactPage     `json:"contactPage"`
+	AboutPage   AboutPage       `json:"aboutPage"`
 }
 
-func (c *updateProfileInfoRequest) toProto() *profilePb.UpdateProfileInfoRequest {
+type HomePageContent struct {
+	Profile         string `json:"profile"`
+	ProfileSubtitle string `json:"profileSubtitle"`
+	AboutTitle      string `json:"aboutStudioTitle"`
+	AboutSubtitle   string `json:"aboutStudioSubtitle"`
+}
+
+type ContactPage struct {
+	ProfileEmail   string    `json:"profileEmail"`
+	ProfilePhone   string    `json:"profilePhone"`
+	ProfileAddress string    `json:"profileAddress"`
+	Title          string    `json:"title"`
+	Subtitle       string    `json:"subtitle"`
+	WorkHours      WorkHours `json:"workHours"`
+}
+
+type WorkHours struct {
+	Monday    *TimeRange `json:"monday"`
+	Tuesday   *TimeRange `json:"tuesday"`
+	Wednesday *TimeRange `json:"wednesday"`
+	Thursday  *TimeRange `json:"thoursday"`
+	Friday    *TimeRange `json:"friday"`
+	Saturday  *TimeRange `json:"saturday"`
+	Sunday    *TimeRange `json:"sunday"`
+}
+
+type TimeRange struct {
+	Open  int `json:"open"`
+	Close int `json:"close"`
+}
+
+type AboutPage struct {
+	Title        string       `json:"title"`
+	Subtitle     string       `json:"subtitle"`
+	OurStory     Story        `json:"ourStory"`
+	AboutFounder AboutFounder `json:"aboutFounder"`
+}
+
+type Story struct {
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+}
+
+type AboutFounder struct {
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	Replica  string `json:"replica"`
+}
+
+// ToProto maps the nested API Gateway request to the gRPC Protobuf structure
+func (c *UpdateProfileRequest) ToProto() *profilePb.UpdateProfileInfoRequest {
 	return &profilePb.UpdateProfileInfoRequest{
 		ProfileInfo: &profilePb.ProfileInfo{
-			Id:              c.ID,
-			ProfileEmail:    c.ProfileEmail,
-			ProfilePhone:    c.ProfilePhone,
-			ProfileAddress:  c.ProfileAddress,
-			ProfileTitle:    c.ProfileTitle,
-			ProfileSubtitle: c.ProfileSubtitle,
+			Id: c.ID,
+			HomePage: &profilePb.HomePage{
+				Profile:             c.HomePage.Profile,
+				ProfileSubtitle:     c.HomePage.ProfileSubtitle,
+				AboutStudioTitle:    c.HomePage.AboutTitle,
+				AboutStudioSubtitle: c.HomePage.AboutSubtitle,
+			},
+			ContactPage: &profilePb.ContactPage{
+				ProfileEmail:   c.ContactPage.ProfileEmail,
+				ProfilePhone:   c.ContactPage.ProfilePhone,
+				ProfileAddress: c.ContactPage.ProfileAddress,
+				Title:          c.ContactPage.Title,
+				Subtitle:       c.ContactPage.Subtitle,
+				WorkHours:      mapWorkHoursToProto(c.ContactPage.WorkHours),
+			},
+			AboutPage: &profilePb.AboutPage{
+				Title:    c.AboutPage.Title,
+				Subtitle: c.AboutPage.Subtitle,
+				OurStory: &profilePb.Story{
+					Title:    c.AboutPage.OurStory.Title,
+					Subtitle: c.AboutPage.OurStory.Subtitle,
+				},
+				AboutFounder: &profilePb.Founder{
+					Title:    c.AboutPage.AboutFounder.Title,
+					Subtitle: c.AboutPage.AboutFounder.Subtitle,
+					Replica:  c.AboutPage.AboutFounder.Replica,
+				},
+			},
 		},
+	}
+}
+
+// Helper functions for mapping nested structures
+func mapWorkHoursToProto(wh WorkHours) *profilePb.WorkHours {
+	return &profilePb.WorkHours{
+		Monday:    mapTimeRange(wh.Monday),
+		Tuesday:   mapTimeRange(wh.Tuesday),
+		Wednesday: mapTimeRange(wh.Wednesday),
+		Thursday:  mapTimeRange(wh.Thursday),
+		Friday:    mapTimeRange(wh.Friday),
+		Saturday:  mapTimeRange(wh.Saturday),
+		Sunday:    mapTimeRange(wh.Sunday),
+	}
+}
+
+func mapTimeRange(tr *TimeRange) *profilePb.TimeRange {
+	if tr == nil {
+		return nil
+	}
+	return &profilePb.TimeRange{
+		Open:  int32(tr.Open),
+		Close: int32(tr.Close),
 	}
 }
 

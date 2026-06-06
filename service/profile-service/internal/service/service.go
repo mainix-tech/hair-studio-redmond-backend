@@ -15,6 +15,10 @@ func NewService(repo domain.ProfileRepository) *service {
 	}
 }
 
+func (s *service) GetProfile(ctx context.Context) (*domain.ProfileModel, error) {
+	return s.repo.GetProfile(ctx)
+}
+
 func (s *service) UpdateProfile(ctx context.Context, dto *domain.ProfileModel) error {
 	return s.repo.UpdateProfile(ctx, dto)
 }
