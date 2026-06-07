@@ -32,8 +32,8 @@ func (h *ApiGatewayHandlers) handleGetProfileInfo(w http.ResponseWriter, r *http
 
 	resp, err := h.profileClient.Client.GetProfileInfo(r.Context(), &profilePb.GetProfileInfoRequest{})
 	if err != nil {
-		log.Printf("Failed to get menu items: %v", err)
-		http.Error(w, "Failed to get menu items", http.StatusInternalServerError)
+		log.Printf("Failed to get profile items: %v", err)
+		http.Error(w, "Failed to get profile items", http.StatusInternalServerError)
 		return
 	}
 

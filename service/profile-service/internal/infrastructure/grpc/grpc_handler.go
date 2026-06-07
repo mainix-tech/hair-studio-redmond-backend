@@ -50,7 +50,6 @@ func (h *gRPCHandler) UpdateProfileInfo(ctx context.Context, req *pb.UpdateProfi
 	}
 
 	model := &domain.ProfileModel{
-		ID: info.GetId(),
 		HomePage: domain.HomePageContent{
 			Profile:         info.HomePage.GetProfile(),
 			ProfileSubtitle: info.HomePage.GetProfileSubtitle(),

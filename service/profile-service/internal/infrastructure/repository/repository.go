@@ -52,44 +52,43 @@ func (r *postgresRepository) GetProfile(ctx context.Context) (*domain.ProfileMod
 }
 
 func (r *postgresRepository) UpdateProfile(ctx context.Context, dto *domain.ProfileModel) error {
-	// 1. Start the transaction
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	// Defer a rollback in case of error. If tx.Commit() is called, this does nothing.
 	defer tx.Rollback(ctx)
 
-	// 2. Update Contact Table
-	// Note: Converting WorkHours to JSON using encoding/json
 	workHoursJSON, err := json.Marshal(dto.ContactPage.WorkHours)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec(ctx, `UPDATE contact SET email=$1, phone=$2, address=$3, title=$4, subtitle=$5, work_hours=$6 WHERE id=$7`,
+	// 1. Update Contact using a subquery to safely target the singleton row
+	_, err = tx.Exec(ctx, `UPDATE contact SET email=$1, phone=$2, address=$3, title=$4, subtitle=$5, work_hours=$6 
+                           WHERE id = (SELECT id FROM contact LIMIT 1)`,
 		dto.ContactPage.ProfileEmail, dto.ContactPage.ProfilePhone, dto.ContactPage.ProfileAddress,
-		dto.ContactPage.Title, dto.ContactPage.Subtitle, workHoursJSON, dto.ID)
+		dto.ContactPage.Title, dto.ContactPage.Subtitle, workHoursJSON)
 	if err != nil {
 		return err
 	}
 
-	// 3. Update Home Table
-	_, err = tx.Exec(ctx, `UPDATE home SET title=$1, subtitle=$2, aboutStudioTitle=$3, aboutStudioSubtitle=$4 WHERE id=$5`,
-		dto.HomePage.Profile, dto.HomePage.ProfileSubtitle, dto.HomePage.AboutTitle, dto.HomePage.AboutSubtitle, dto.ID)
+	// 2. Update Home
+	_, err = tx.Exec(ctx, `UPDATE home SET title=$1, subtitle=$2, aboutStudioTitle=$3, aboutStudioSubtitle=$4 
+                           WHERE id = (SELECT id FROM home LIMIT 1)`,
+		dto.HomePage.Profile, dto.HomePage.ProfileSubtitle, dto.HomePage.AboutTitle, dto.HomePage.AboutSubtitle)
 	if err != nil {
 		return err
 	}
 
-	// 4. Update About Table
+	// 3. Update About
 	_, err = tx.Exec(ctx, `UPDATE about SET title=$1, subtitle=$2, ourStoryTitle=$3, ourStorySubtitle=$4, 
-                                          aboutFounderTitle=$5, aboutFounderSubtitle=$6, aboutFounderReplica=$7 WHERE id=$8`,
+                                          aboutFounderTitle=$5, aboutFounderSubtitle=$6, aboutFounderReplica=$7 
+                           WHERE id = (SELECT id FROM about LIMIT 1)`,
 		dto.AboutPage.Title, dto.AboutPage.Subtitle, dto.AboutPage.OurStory.Title, dto.AboutPage.OurStory.Subtitle,
-		dto.AboutPage.AboutFounder.Title, dto.AboutPage.AboutFounder.Subtitle, dto.AboutPage.AboutFounder.Replica, dto.ID)
+		dto.AboutPage.AboutFounder.Title, dto.AboutPage.AboutFounder.Subtitle, dto.AboutPage.AboutFounder.Replica)
 	if err != nil {
 		return err
 	}
 
-	// 5. Commit the transaction
 	return tx.Commit(ctx)
 }

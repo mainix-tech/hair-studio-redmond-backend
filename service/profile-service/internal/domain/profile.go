@@ -6,7 +6,6 @@ import (
 )
 
 type ProfileModel struct {
-	ID          string             `bson:"_id,omitempty"`
 	HomePage    HomePageContent    `bson:"homePage"`
 	ContactPage ContactPageContent `bson:"contactPage"`
 	AboutPage   AboutPageContent   `bson:"aboutPage"`

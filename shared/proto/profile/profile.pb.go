@@ -500,10 +500,9 @@ func (x *AboutPage) GetAboutFounder() *Founder {
 
 type ProfileInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	HomePage      *HomePage              `protobuf:"bytes,2,opt,name=homePage,proto3" json:"homePage,omitempty"`
-	ContactPage   *ContactPage           `protobuf:"bytes,3,opt,name=contactPage,proto3" json:"contactPage,omitempty"`
-	AboutPage     *AboutPage             `protobuf:"bytes,4,opt,name=aboutPage,proto3" json:"aboutPage,omitempty"`
+	HomePage      *HomePage              `protobuf:"bytes,1,opt,name=homePage,proto3" json:"homePage,omitempty"`
+	ContactPage   *ContactPage           `protobuf:"bytes,2,opt,name=contactPage,proto3" json:"contactPage,omitempty"`
+	AboutPage     *AboutPage             `protobuf:"bytes,3,opt,name=aboutPage,proto3" json:"aboutPage,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -536,13 +535,6 @@ func (x *ProfileInfo) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ProfileInfo.ProtoReflect.Descriptor instead.
 func (*ProfileInfo) Descriptor() ([]byte, []int) {
 	return file_profile_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *ProfileInfo) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
 }
 
 func (x *ProfileInfo) GetHomePage() *HomePage {
@@ -765,12 +757,11 @@ const file_profile_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x1a\n" +
 	"\bsubtitle\x18\x02 \x01(\tR\bsubtitle\x12*\n" +
 	"\bourStory\x18\x03 \x01(\v2\x0e.profile.StoryR\bourStory\x124\n" +
-	"\faboutFounder\x18\x04 \x01(\v2\x10.profile.FounderR\faboutFounder\"\xb6\x01\n" +
-	"\vProfileInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12-\n" +
-	"\bhomePage\x18\x02 \x01(\v2\x11.profile.HomePageR\bhomePage\x126\n" +
-	"\vcontactPage\x18\x03 \x01(\v2\x14.profile.ContactPageR\vcontactPage\x120\n" +
-	"\taboutPage\x18\x04 \x01(\v2\x12.profile.AboutPageR\taboutPage\"P\n" +
+	"\faboutFounder\x18\x04 \x01(\v2\x10.profile.FounderR\faboutFounder\"\xa6\x01\n" +
+	"\vProfileInfo\x12-\n" +
+	"\bhomePage\x18\x01 \x01(\v2\x11.profile.HomePageR\bhomePage\x126\n" +
+	"\vcontactPage\x18\x02 \x01(\v2\x14.profile.ContactPageR\vcontactPage\x120\n" +
+	"\taboutPage\x18\x03 \x01(\v2\x12.profile.AboutPageR\taboutPage\"P\n" +
 	"\x16GetProfileInfoResponse\x126\n" +
 	"\vprofileInfo\x18\x01 \x01(\v2\x14.profile.ProfileInfoR\vprofileInfo\"\x17\n" +
 	"\x15GetProfileInfoRequest\"\x1b\n" +

@@ -9,7 +9,6 @@ import (
 
 // ///////////////////////////////////////////////////// START PROFILE ///////////////////////////////////////////
 type UpdateProfileRequest struct {
-	ID          string          `json:"id"`
 	HomePage    HomePageContent `json:"homePage"`
 	ContactPage ContactPage     `json:"contactPage"`
 	AboutPage   AboutPage       `json:"aboutPage"`
@@ -68,7 +67,6 @@ type AboutFounder struct {
 func (c *UpdateProfileRequest) ToProto() *profilePb.UpdateProfileInfoRequest {
 	return &profilePb.UpdateProfileInfoRequest{
 		ProfileInfo: &profilePb.ProfileInfo{
-			Id: c.ID,
 			HomePage: &profilePb.HomePage{
 				Profile:             c.HomePage.Profile,
 				ProfileSubtitle:     c.HomePage.ProfileSubtitle,

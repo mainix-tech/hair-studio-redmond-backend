@@ -61,10 +61,9 @@ message AboutPage {
 
 
 message ProfileInfo {
-  string id = 1;
-  HomePage homePage = 2;
-  ContactPage contactPage = 3;
-  AboutPage aboutPage = 4;
+  HomePage homePage = 1;
+  ContactPage contactPage = 2;
+  AboutPage aboutPage = 3;
 }
 
 message GetProfileInfoResponse {
